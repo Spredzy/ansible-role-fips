@@ -1,8 +1,4 @@
 ---
-- name: Check current state of FIPS
-  command: cat /proc/sys/crypto/fips_enabled
-  register: fips_enabled
-
 - block:
 
     - name: Install required dracut related packages
@@ -33,4 +29,4 @@
       become: True
       reboot:
 
-  when: 'fips_enabled.stdout == "0"'
+  when: not ansible_fips
