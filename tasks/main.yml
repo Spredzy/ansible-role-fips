@@ -1,29 +1,36 @@
 ---
 - block:
+    - block:
+      - name: Install required dracut related packages
+        package:
+          name: '{{ item }}'
+        become: True
+        loop:
+          - dracut-fips
+          - dracut-fips-aesni
 
-    - name: Install required dracut related packages
-      package:
-        name: '{{ item }}'
-      become: True
-      loop:
-        - dracut-fips
-        - dracut-fips-aesni
+      - name: Regenerate the initramfs file
+        command: dracut -v -f
+        become: True
 
-    - name: Regenerate the initramfs file
-      command: dracut -v -f
-      become: True
+      - name: Add fips=1 to GRUB_CMDLINE_LINUX
+        lineinfile:
+          path: /etc/default/grub
+          regexp: 'GRUB_CMDLINE_LINUX="(.*)"'
+          line: 'GRUB_CMDLINE_LINUX="fips=1 \1"'
+          backrefs: yes
+        become: True
 
-    - name: Add fips=1 to GRUB_CMDLINE_LINUX
-      lineinfile:
-        path: /etc/default/grub
-        regexp: 'GRUB_CMDLINE_LINUX="(.*)"'
-        line: 'GRUB_CMDLINE_LINUX="fips=1 \1"'
-        backrefs: yes
-      become: True
+      - name: Apply the changes to /etc/default/grub
+        shell: grub2-mkconfig -o /boot/grub2/grub.cfg
+        become: True
+      when: ansible_distribution_major_version == '7'
 
-    - name: Apply the changes to /etc/default/grub
-      shell: grub2-mkconfig -o /boot/grub2/grub.cfg
-      become: True
+    - block:
+      - name: Enable fips via system tool
+        command: fips-mode-setup --enable
+        become: True
+      when: ansible_distribution_major_version == '8'
 
     - name: Reboot
       become: True
