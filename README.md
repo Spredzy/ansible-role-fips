@@ -20,6 +20,13 @@ $ sysctl crypto.fips_enabled
 crypto.fips_enabled = 1
 ```
 
+On EL8 nodes, one should ensure the following file exists:
+
+```bash
+$ cat /etc/system-fips
+# FIPS module installation complete
+```
+
 ## License
 
 Apache 2.0

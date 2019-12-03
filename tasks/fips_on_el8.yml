@@ -1,0 +1,13 @@
+---
+- name: Install package that provides fips-mode-setup
+  package:
+    name: crypto-policies
+  become: true
+
+- name: Regenerate the initramfs file
+  command: fips-mode-setup --enable
+  become: true
+
+- name: Reboot
+  become: true
+  reboot:
