@@ -2,27 +2,27 @@
 - name: Install required dracut related packages
   package:
     name: '{{ item }}'
-  become: True
+  become: true
   loop:
     - dracut-fips
     - dracut-fips-aesni
 
 - name: Regenerate the initramfs file
   command: dracut -v -f
-  become: True
+  become: true
 
 - name: Add fips=1 to GRUB_CMDLINE_LINUX
   lineinfile:
     path: /etc/default/grub
     regexp: 'GRUB_CMDLINE_LINUX="(.*)"'
     line: 'GRUB_CMDLINE_LINUX="fips=1 \1"'
-    backrefs: yes
-  become: True
+    backrefs: true
+  become: true
 
 - name: Apply the changes to /etc/default/grub
   shell: grub2-mkconfig -o /boot/grub2/grub.cfg
-  become: True
+  become: true
 
 - name: Reboot
-  become: True
+  become: true
   reboot:
